@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'bobby'
 from scrapy.cmdline import execute
 import sys
 import os
