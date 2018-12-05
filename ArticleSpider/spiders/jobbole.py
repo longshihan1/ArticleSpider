@@ -35,8 +35,8 @@ class JobboleSpider(scrapy.Spider):
             .replace("·", "").strip()
         #//*[@id="post-114377"]/div[2]/p
         category = response.xpath("//p[@class='entry-meta-hide-on-mobile']").extract()[0]
-        tag = response.xpath("//p[@class='entry-meta-hide-on-mobile']/a")
-        tags1 = tag.xpath("string(.)").extract()
+        #tag = response.xpath("//p[@class='entry-meta-hide-on-mobile']/a")
+        #tags1 = tag.xpath("string(.)").extract()
         # 点赞
         praise_nums = response.xpath("//span[contains(@class,'vote-post-up)]").extract()[0]
         # 收藏
