@@ -4,7 +4,7 @@ import re
 from scrapy.http import Request
 from urllib import parse
 from ArticleSpider.spiders.CxExtractor import CxExtractor
-from ArticleSpider.items import JobBoleArticleItem
+from ArticleSpider.items import JobBoleArticleItem, JobBoleArticleLoaderItem, ArticleItemLoader
 from ArticleSpider.utils.common import gen_md5
 
 
@@ -21,7 +21,7 @@ class JobboleSpider(scrapy.Spider):
             image_url = post_node.css("img::attr(src)").extract_first("")
             post_url = post_node.css("::attr(href)").extract_first()
             yield Request(url=parse.urljoin(response.url, post_url),
-                          meta={"front_image_url": parse.urljoin(response.url, image_url)}, callback=self.parse_detail)
+                          meta={"front_image_url": parse.urljoin(response.url, image_url)}, callback=self.parse_loaderdetail)
 
         # 提取下一页下载
         """
@@ -85,8 +85,8 @@ class JobboleSpider(scrapy.Spider):
 
     def parse_loaderdetail(self, response):
         front_img_url = response.meta.get("front_image_url", "")
-        item_loader = ArticleItemLoader(item=JobBoleArticleItem(), response=response)
-        article_item_loader = JobBoleArticleItem()
+        item_loader = ArticleItemLoader(item=JobBoleArticleLoaderItem(), response=response)
+        article_item_loader = JobBoleArticleLoaderItem()
         item_loader.add_css("title", ".entry-header h1::text")  # 通过 css 选择器获取值
         item_loader.add_value("url", response.url)
         item_loader.add_css("create_date", ".entry-meta-hide-on-mobile::text")

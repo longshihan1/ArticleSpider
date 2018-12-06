@@ -4,10 +4,13 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/items.html
+import re
 
 import scrapy
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import MapCompose, Join
+from scrapy.loader.processors import MapCompose, Join,TakeFirst
+
+from ArticleSpider.utils.itemloadermanager import get_date, return_value, get_nums, remove_comment_tag
 
 
 class ArticlespiderItem(scrapy.Item):
@@ -39,7 +42,7 @@ class ArticleItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
 
-class JobBoleArticleItem(scrapy.item):
+class JobBoleArticleLoaderItem(scrapy.Item):
     title = scrapy.Field()
     create_date = scrapy.Field(  # 创建时间
         input_processor=MapCompose(get_date),
@@ -51,7 +54,6 @@ class JobBoleArticleItem(scrapy.item):
         # 修改 output_processor
         output_processor=MapCompose(return_value)
     )
-    front_img_url = scrapy.Field()
     fav_nums = scrapy.Field(  # 收藏数
         input_processor=MapCompose(get_nums)
     )
@@ -71,42 +73,7 @@ class JobBoleArticleItem(scrapy.item):
         output_processor=Join("")
     )
     object_id = scrapy.Field()  # 文章内容的md5的哈希值，能够将长度不定的 url 转换成定长的序列
+    front_img_path = scrapy.Field()  # 文件路径
 
 
-def get_nums(value):
-    """
-    通过正则表达式获取 评论数，点赞数和收藏数
-    """
-    re_match = re.match(".*?(\d+).*", value)
-    if re_match:
-        nums = (int)(re_match.group(1))
-    else:
-        nums = 0
 
-    return nums
-
-
-def get_date(value):
-    re_match = re.match("([0-9/]*).*?", value.strip())
-    if re_match:
-        create_date = re_match.group(1)
-    else:
-        create_date = ""
-    return create_date
-
-
-def remove_comment_tag(value):
-    """
-    去掉 tag 中的 “评论” 标签
-    """
-    if "评论" in value:
-        return ""
-    else:
-        return value
-
-
-def return_value(value):
-    """
-    do nothing, 只是为了覆盖 ItemLoader 中的 default_processor
-    """
-    return value
